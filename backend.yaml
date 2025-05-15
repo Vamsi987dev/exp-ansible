@@ -2,6 +2,10 @@
   hosts: backend
   become: yes
   tasks:
+    - name: Creating Expense user
+      ansible.builtin.user:
+        name: expense
+
     - name: Disable nodejs
       ansible.builtin.command: dnf module disable nodejs -y
 
@@ -11,26 +15,24 @@
     - name: Install nodejs
       ansible.builtin.package:
         name: nodejs
-        state: present
+        state: present 
     
-    - name: Creating Expense user
-      ansible.builtin.user:
-        name: expense
-
-    - name: create App directory
-      ansible.builtin.file:
-        name: /app
-        state: directory
-
     - name: Download Application code
       ansible.builtin.get_url:
         url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
         dest: /tmp/backend.zip
+
+    - name: create App directory
+      ansible.builtin.file:
+        name: /app
+        state: directory 
 
     - name: Extarct the Code
       ansible.builtin.unarchive:
         src: /tmp/backend.zip 
         dest: /app
         remote_src: yes
+
+        
 
     
