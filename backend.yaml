@@ -1,6 +1,8 @@
 - name: Backend Configuration
   hosts: backend
   become: yes
+  vars_files:
+    - backend_vars.yaml
   tasks:
     - name: Creating Expense user
       ansible.builtin.user:
@@ -14,8 +16,11 @@
 
     - name: Install nodejs
       ansible.builtin.package:
-        name: nodejs
+        name: "{{ item }}"
         state: present 
+      loop:
+      - nodejs
+      - mysql
     
     - name: Download Application code
       ansible.builtin.get_url:
@@ -33,6 +38,33 @@
         dest: /app
         remote_src: yes
 
-        
+    - name: install dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
+    
+    - name: Copy the backend service file
+      ansible.builtin.copy:
+        src: backend.service
+        dest: /etc/systemd/system/backend.service
+    
+    - name: ansible to install pymysql
+      ansible.builtin.pip:
+        name:
+        - PyMySQL
+        - cryptography
+        executable: pip3.9
+
+
+    - name: Import Mysql Data
+      community.mysql.mysql_db:
+        login_user: "{{ login_user }}"
+        login_password: "{{ login_password }}"
+        login_host: "{{ login_host }}"    
+        target: /app/schema/backend.sql
+        name: all
+        state: dump
+    
+
 
     
