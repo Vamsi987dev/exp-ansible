@@ -22,8 +22,8 @@
 
   - name: Create Html Directory
     ansible.builtin.file:
-    path: "{{ path }}"
-    state: directory
+      path: "{{ path }}"
+      state: directory
   
   - name: Downlaod the frontend code
     ansible.builtin.get_url: 
